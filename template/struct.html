@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>database overview - exported by database-struct</title>
+  {% for it in style %}
+  <style>{{it | safe}}</style>
+  {% endfor %}
+</head>
+<body>
+
+<!-- table list -->
+<table class="table-list" id="table-list">
+  <caption>table count: {{tableCount}} export date: {{date}}</caption>
+  <thead>
+    <tr>
+      <th>table name</th>
+      <th>comment</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for table in tables %}
+    <tr>
+      <td><a href="#{{table.Name}}" title="查看详情">{{table.Name}}</a></td>
+      <td>{{table.Comment}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+
+<!-- table detail -->
+{% for table in tables %}
+<table class="table-detail">
+  <caption>
+    <h2 id="{{table.Name}}">{{table.Name}} <a href="#table-list">⇪</a></h2>
+    <p>{{table.Comment}}</p>
+  </caption>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>type</th>
+      <th>nullable</th>
+      <th>default value</th>
+      <th>key</th>
+      <th>comment</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for field in table.Fields %}
+    <tr>
+      <td>{{field.Field}}</td>
+      <td>{{field.Type}}</td>
+      <td>{{field.Null}}</td>
+      <td>{{field.Default}}</td>
+      <td>{{field.Key}}</td>
+      <td>{{field.Comment}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<details>
+  <summary>DDL</summary>
+  <pre><code class="language-sql">{{table.Ddl}}</code></pre>
+</details>
+<details>
+  <summary>Go struct</summary>
+  <pre><code class="language-go">{{table.GoStruct}}</code></pre>
+</details>
+{% endfor %}
+
+{% for it in script %}
+<script>{{it | safe}}</script>
+{% endfor %}
+</body>
+</html>
