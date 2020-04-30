@@ -189,6 +189,8 @@ var typeMysqlDic = map[string]string{
 	"tinytext":            "string",
 	"enum":                "string",
 	"time":                "time.Time",
+	"blob":                "[]byte",
+	"tinyblob":            "[]byte",
 }
 
 // TypeMysqlMatchMp Fuzzy Matching Types.模糊匹配类型
@@ -201,12 +203,15 @@ var typeMysqlMatch = [][]string{
 	{`^(bigint)[(]\d+[)]`, "int64"},
 	{`^(char)[(]\d+[)]`, "string"},
 	{`^(enum)[(](.)+[)]`, "string"},
+	{`^(set)[(](.)+[)]`, "string"},
 	{`^(varchar)[(]\d+[)]`, "string"},
 	{`^(varbinary)[(]\d+[)]`, "[]byte"},
 	{`^(binary)[(]\d+[)]`, "[]byte"},
+	{`^(tinyblob)[(]\d+[)]`, "[]byte"},
 	{`^(decimal)[(]\d+,\d+[)]`, "float64"},
 	{`^(mediumint)[(]\d+[)]`, "string"},
 	{`^(double)[(]\d+,\d+[)]`, "float64"},
 	{`^(float)[(]\d+,\d+[)]`, "float64"},
 	{`^(datetime)[(]\d+[)]`, "time.Time"},
+	{`^(timestamp)[(]\d+[)]`, "time.Time"},
 }

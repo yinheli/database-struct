@@ -63,8 +63,8 @@ func Generate(options *Options, tables []*Table) error {
 	}
 
 	if options.HtmlFile != "" {
-		// tpl := pongo2.Must(pongo2.FromString(pkgerReadString("/template/struct.html")))
-		tpl := pongo2.Must(pongo2.FromFile("template/struct.html"))
+		tpl := pongo2.Must(pongo2.FromString(pkgerReadString("/template/struct.html")))
+		// tpl := pongo2.Must(pongo2.FromFile("template/struct.html"))
 		data := pongo2.Context{
 			"tables":     tables,
 			"tableCount": len(tables),
@@ -83,6 +83,7 @@ func Generate(options *Options, tables []*Table) error {
 		if err != nil {
 			return err
 		}
+		_ = file.Close()
 	}
 
 	if options.ModelDir != "" {
