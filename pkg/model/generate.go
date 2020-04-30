@@ -174,7 +174,7 @@ func goFields(options *Options, fields []*Field) []jen.Code {
 			if f.Default != "" {
 				t += fmt.Sprint(";default:", f.Default)
 			}
-			if f.Nullable {
+			if !f.Nullable {
 				t += ";not null"
 			}
 			if f.Key == "PRI" {
