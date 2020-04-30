@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/yinheli/database-struct/pkg/model"
@@ -23,6 +24,16 @@ var (
 			"buildTime: ", version.BuildAt,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if options.Verbose {
+				b, _ := json.MarshalIndent(&options, "", "  ")
+				fmt.Println("using options:\n", string(b))
+			}
+
+			if options.Dsn == "" {
+				fmt.Println("Err: missing database dsn")
+				os.Exit(1)
+			}
+
 			if len(filters) > 0 {
 				options.Filters = make([]*model.Filter, 0, len(filters))
 				for _, filter := range filters {
@@ -50,16 +61,17 @@ var (
 )
 
 func init() {
-	rootCmd.Flags().StringVarP(&options.DbType, "dbType", "d", model.DbTypeMySQL, "database type, mysql,postgresql")
+	rootCmd.Flags().StringVarP(&options.DbType, "dbType", "d", model.DbTypeMySQL, "database type: "+strings.Join([]string{model.DbTypeMySQL, model.DbTypePostgreSQL}, ","))
 	rootCmd.Flags().StringVarP(&options.Dsn, "dsn", "c", "", "database dsn, e.g. root:123456@(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 	rootCmd.Flags().BoolVarP(&options.GenGormTag, "gorm", "", true, "generate gorm tags for model")
 	rootCmd.Flags().BoolVarP(&options.GenJsonTag, "json", "", true, "generate json tags for model")
 	rootCmd.Flags().StringVarP(&options.HtmlFile, "html", "", "", "generate html report file")
 	rootCmd.Flags().StringVarP(&options.ModelDir, "dir", "", "", "generate go model files to dir")
 	rootCmd.Flags().StringVarP(&options.ModelPackageName, "pkg", "", "model", "go model package name")
-	rootCmd.Flags().BoolVarP(&options.ModelSingleFile, "single", "", true, "go model in one file")
+	rootCmd.Flags().BoolVarP(&options.ModelSingleFile, "single", "", true, "generate go model code all in one file, use `--single=false` to turnoff")
 	rootCmd.Flags().StringSliceVarP(&filters, "filter", "f", nil, "filter table with table prefix and pattern, e.g: app_,app_%")
-	rootCmd.Flags().StringSliceVarP(&options.Exclude, "exclude", "e", nil, "exclude table name")
+	rootCmd.Flags().StringSliceVarP(&options.Exclude, "exclude", "e", nil, "exclude table name, not support pattern yet")
+	rootCmd.Flags().BoolVarP(&options.Verbose, "verbose", "", false, "enable verbose, show more log message")
 }
 
 func main() {

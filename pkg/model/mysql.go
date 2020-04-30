@@ -4,6 +4,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -15,6 +16,10 @@ func (t *mysql) dbStruct(options *Options) (tables []*Table, err error) {
 	db, err = newDb(options.DbType, options.Dsn)
 	if err != nil {
 		return
+	}
+
+	if options.Verbose {
+		l.Println("mysql dump db struct")
 	}
 
 	if len(options.Filters) > 0 {
@@ -38,6 +43,10 @@ func (t *mysql) dbStruct(options *Options) (tables []*Table, err error) {
 		}
 	} else {
 		tables, err = t.filterTables(db, nil, options.Exclude)
+	}
+
+	if options.Verbose && err == nil {
+		l.Println("dump completed, table count:", len(tables))
 	}
 
 	return
@@ -162,7 +171,7 @@ func (t *mysql) getGoType(dbType string) string {
 	panic(fmt.Sprintf("unkonow type: %s", dbType))
 }
 
-// TypeMysqlDicMp Accurate matching type.精确匹配类型
+// typeMysqlDic matching type
 var typeMysqlDic = map[string]string{
 	"smallint":            "int16",
 	"smallint unsigned":   "uint16",
@@ -193,7 +202,7 @@ var typeMysqlDic = map[string]string{
 	"tinyblob":            "[]byte",
 }
 
-// TypeMysqlMatchMp Fuzzy Matching Types.模糊匹配类型
+// typeMysqlMatch regx match types
 var typeMysqlMatch = [][]string{
 	{`^(tinyint)[(]\d+[)] unsigned`, "uint8"},
 	{`^(tinyint)[(]\d+[)]`, "int8"},

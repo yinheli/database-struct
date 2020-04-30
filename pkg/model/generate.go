@@ -8,6 +8,7 @@ import (
 	_ "github.com/yinheli/database-struct/pkg/static"
 	"gopkg.in/flosch/pongo2.v3"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,6 +22,8 @@ const (
 
 var (
 	ErrTypeNotSupported = errors.New("type not found")
+
+	l = log.New(os.Stdout, "[database-struct] ", log.LstdFlags)
 )
 
 type Options struct {
@@ -34,6 +37,7 @@ type Options struct {
 	ModelSingleFile  bool
 	Filters          []*Filter
 	Exclude          []string
+	Verbose          bool
 }
 
 type Filter struct {
@@ -58,6 +62,10 @@ type strutter interface {
 }
 
 func Generate(options *Options, tables []*Table) error {
+	if options.Verbose {
+		l.Println("generate table go struct code")
+	}
+
 	for _, table := range tables {
 		goStruct(options, table)
 	}
@@ -78,6 +86,9 @@ func Generate(options *Options, tables []*Table) error {
 			},
 		}
 		file, err := os.OpenFile(options.HtmlFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
+		if err != nil {
+			return err
+		}
 
 		err = tpl.ExecuteWriter(data, file)
 		if err != nil {
@@ -125,6 +136,10 @@ func Generate(options *Options, tables []*Table) error {
 		}
 	}
 
+	if options.Verbose {
+		l.Println("Done")
+	}
+
 	return nil
 }
 
@@ -141,11 +156,13 @@ func DbStruct(options *Options) ([]*Table, error) {
 func goStruct(options *Options, table *Table) {
 	name := TitleCase(strings.TrimPrefix(table.Name, table.Prefix))
 	c := jen.
-		Commentf("%s table: %s", name, table.Name).Line().
-		Comment(OneLine(table.Comment)).Line().
-		Type().Id(name).Struct(
-		goFields(options, table.Fields)...,
-	)
+		Commentf("%s table: %s", name, table.Name).Line()
+
+	if table.Comment != "" {
+		c = c.Comment(OneLine(table.Comment)).Line()
+	}
+
+	c = c.Type().Id(name).Struct(goFields(options, table.Fields)...)
 
 	if table.Prefix != "" {
 		c = c.Line().Line().
