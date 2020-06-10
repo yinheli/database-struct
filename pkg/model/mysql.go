@@ -205,7 +205,9 @@ var typeMysqlDic = map[string]string{
 var typeMysqlMatch = [][]string{
 	{`^(tinyint)[(]\d+[)] unsigned`, "uint8"},
 	{`^(tinyint)[(]\d+[)]`, "int8"},
+	{`^(smallint)[(]\d+[)] unsigned`, "uint16"},
 	{`^(smallint)[(]\d+[)]`, "int16"},
+	{`^(int)[(]\d+[)] unsigned`, "uint"},
 	{`^(int)[(]\d+[)]`, "int"},
 	{`^(bigint)[(]\d+[)] unsigned`, "uint64"},
 	{`^(bigint)[(]\d+[)]`, "int64"},
