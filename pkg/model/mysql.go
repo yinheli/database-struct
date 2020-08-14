@@ -2,10 +2,11 @@ package model
 
 import (
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
 	"regexp"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 )
 
 type mysql struct{}
@@ -64,6 +65,7 @@ func (t *mysql) filterTables(db *gorm.DB, filter *Filter, exclude []string) (tab
 		Where("table_schema = database()")
 
 	if filter != nil {
+		l.Println("filter table_name like", filter.TableNamePattern)
 		tdb = tdb.Where("table_name like ?", filter.TableNamePattern)
 	}
 

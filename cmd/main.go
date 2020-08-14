@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/yinheli/database-struct/pkg/model"
-	"github.com/yinheli/database-struct/version"
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/spf13/cobra"
+	"github.com/yinheli/database-struct/pkg/model"
+	"github.com/yinheli/database-struct/version"
 )
 
 var (
@@ -24,11 +25,6 @@ var (
 			"buildTime: ", version.BuildAt,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if options.Verbose {
-				b, _ := json.MarshalIndent(&options, "", "  ")
-				fmt.Println("using options:\n", string(b))
-			}
-
 			if options.Dsn == "" {
 				fmt.Println("Err: missing database dsn")
 				os.Exit(1)
@@ -49,6 +45,11 @@ var (
 						options.Filters = append(options.Filters, f)
 					}
 				}
+			}
+
+			if options.Verbose {
+				b, _ := json.MarshalIndent(&options, "", "  ")
+				fmt.Println("using options:\n", string(b))
 			}
 
 			tables, err := model.DbStruct(&options)
