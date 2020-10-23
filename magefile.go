@@ -5,14 +5,15 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/magefile/mage/mg"
-	"github.com/magefile/mage/sh"
-	"github.com/yinheli/database-struct/version"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/magefile/mage/mg"
+	"github.com/magefile/mage/sh"
+	"github.com/yinheli/database-struct/version"
 )
 
 // Default target to run when none is specified
@@ -92,9 +93,9 @@ func flags() string {
 
 // hash returns the git hash for the current repo or "" if none.
 func hash() string {
-	hash, _ := sh.Output("git", "rev-parse", "--short", "HEAD")
+	hash, _ := sh.Output("git", "rev-parse", "HEAD")
 	if hash == "" {
-		return "0000000"
+		return fmt.Sprintf("%040d", 0)
 	}
 	return hash
 }
