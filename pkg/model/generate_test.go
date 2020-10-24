@@ -2,9 +2,10 @@ package model
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/dave/jennifer/jen"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestGenerate(t *testing.T) {

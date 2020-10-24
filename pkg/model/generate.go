@@ -3,16 +3,17 @@ package model
 import (
 	"errors"
 	"fmt"
-	"github.com/dave/jennifer/jen"
-	"github.com/markbates/pkger"
-	_ "github.com/yinheli/database-struct/pkg/static"
-	"gopkg.in/flosch/pongo2.v3"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/dave/jennifer/jen"
+	"github.com/markbates/pkger"
+	_ "github.com/yinheli/database-struct/pkg/static"
+	"gopkg.in/flosch/pongo2.v3"
 )
 
 const (
