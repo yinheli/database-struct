@@ -65,6 +65,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&options.DbType, "dbType", "d", model.DbTypeMySQL, "database type: "+strings.Join([]string{model.DbTypeMySQL, model.DbTypePostgreSQL}, ","))
 	rootCmd.Flags().StringVarP(&options.Dsn, "dsn", "c", "", "database dsn, e.g. root:123456@(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local")
 	rootCmd.Flags().BoolVarP(&options.GenGormTag, "gorm", "", true, "generate gorm tags for model")
+	rootCmd.Flags().BoolVarP(&options.GormV1, "gormv1", "", false, "set gorm v1 for model, default v2")
 	rootCmd.Flags().BoolVarP(&options.GenJsonTag, "json", "", true, "generate json tags for model")
 	rootCmd.Flags().StringVarP(&options.HtmlFile, "html", "", "", "generate html report file")
 	rootCmd.Flags().StringVarP(&options.ModelDir, "dir", "", "", "generate go model files to dir")

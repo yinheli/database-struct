@@ -31,6 +31,7 @@ type Options struct {
 	DbType           string
 	Dsn              string
 	GenGormTag       bool
+	GormV1           bool
 	GenJsonTag       bool
 	HtmlFile         string
 	ModelDir         string
@@ -184,7 +185,7 @@ func goFields(options *Options, fields []*Field) []jen.Code {
 		if f.Nullable {
 			c = c.Op("*")
 		}
-		c = goType(f, c)
+		c = goType(options, f, c)
 
 		tag := make(map[string]string)
 		if options.GenGormTag {
@@ -219,7 +220,7 @@ func goFields(options *Options, fields []*Field) []jen.Code {
 	return cs
 }
 
-func goType(field *Field, c *jen.Statement) *jen.Statement {
+func goType(options *Options, field *Field, c *jen.Statement) *jen.Statement {
 	switch field.GoType {
 	case "int":
 		return c.Int()
@@ -244,6 +245,11 @@ func goType(field *Field, c *jen.Statement) *jen.Statement {
 	case "string":
 		return c.String()
 	case "time.Time":
+		if !options.GormV1 {
+			if strings.EqualFold(field.Field, "deleted_at") {
+				return c.Qual("gorm.io/gorm", "DeletedAt")
+			}
+		}
 		return c.Qual("time", "Time")
 	case "float32":
 		return c.Float32()
