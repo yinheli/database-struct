@@ -12,7 +12,7 @@ import (
 
 	"github.com/dave/jennifer/jen"
 	"github.com/markbates/pkger"
-	_ "github.com/yinheli/database-struct/pkg/static"
+	"github.com/yinheli/database-struct/static"
 	"gopkg.in/flosch/pongo2.v3"
 )
 
@@ -72,19 +72,23 @@ func Generate(options *Options, tables []*Table) error {
 		goStruct(options, table)
 	}
 
+	readFile := func(filename string) string {
+		data, _ := static.FS.ReadFile(filename)
+		return string(data)
+	}
+
 	if options.HtmlFile != "" {
-		tpl := pongo2.Must(pongo2.FromString(pkgerReadString("/template/struct.html")))
-		// tpl := pongo2.Must(pongo2.FromFile("template/struct.html"))
+		tpl := pongo2.Must(pongo2.FromString(readFile("template/struct.html")))
 		data := pongo2.Context{
 			"tables":     tables,
 			"tableCount": len(tables),
 			"date":       time.Now().Format("2006-01-02 15:04:05"),
 			"style": []string{
-				pkgerReadString("/assets/style.css"),
-				pkgerReadString("/assets/prism/1.20.0/prism.css"),
+				readFile("assets/style.css"),
+				readFile("assets/prism/1.20.0/prism.css"),
 			},
 			"script": []string{
-				pkgerReadString("/assets/prism/1.20.0/prism.js"),
+				readFile("assets/prism/1.20.0/prism.js"),
 			},
 		}
 		file, err := os.OpenFile(options.HtmlFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
