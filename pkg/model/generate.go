@@ -189,7 +189,27 @@ func goFields(options *Options, fields []*Field) []jen.Code {
 		if f.Nullable {
 			c = c.Op("*")
 		}
-		c = goType(options, f, c)
+
+		comment := OneLine(f.Comment)
+		idx := strings.Index(comment, "go-struct:")
+		if idx >= 0 {
+			idx := strings.Index(comment, "go-struct:")
+			gs := comment[idx+10:]
+			idx = strings.Index(gs, " ")
+			if idx > 0 {
+				gs = gs[:idx]
+			}
+			idx = strings.LastIndex(gs, "/")
+			path := ""
+			name := gs
+			if idx > 0 {
+				path = gs[:idx]
+				name = gs[idx+1:]
+			}
+			c.Qual(path, name)
+		} else {
+			c = goType(options, f, c)
+		}
 
 		tag := make(map[string]string)
 		if options.GenGormTag {
@@ -214,7 +234,7 @@ func goFields(options *Options, fields []*Field) []jen.Code {
 			c.Tag(tag)
 		}
 
-		if f.Comment != "" {
+		if comment != "" {
 			c.Comment(OneLine(f.Comment))
 		}
 
