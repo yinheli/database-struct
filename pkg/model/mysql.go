@@ -73,9 +73,20 @@ func (t *mysql) filterTables(db *gorm.DB, filter *Filter, exclude []string) (tab
 		tdb.Where("table_name not in(?)", exclude)
 	}
 
-	err = tdb.Find(&dbTables).Error
+	rows, err := tdb.Rows()
 	if err != nil {
 		return
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var table mysqlTable
+		err = rows.Scan(&table.Name, &table.Comment)
+		if err != nil {
+			return
+		}
+		dbTables = append(dbTables, &table)
 	}
 
 	tables = make([]*Table, 0, len(dbTables))
@@ -113,14 +124,14 @@ func (t *mysql) tableDdl(db *gorm.DB, name string) (ddl string) {
 
 func (t *mysql) tableFields(db *gorm.DB, name string) (fields []*Field, err error) {
 	type mysqlField struct {
-		ColumnName    string `gorm:"column:column_name"`
-		ColumnDefault string `gorm:"column:column_default"`
-		IsNullable    string `gorm:"column:is_nullable"`
-		DataType      string `gorm:"column:data_type"`
-		ColumnType    string `gorm:"column:column_type"`
-		ColumnKey     string `gorm:"column:column_key"`
-		Extra         string `gorm:"column:extra"`
-		ColumnComment string `gorm:"column:column_comment"`
+		ColumnName    string  `gorm:"column:column_name"`
+		ColumnDefault *string `gorm:"column:column_default"`
+		IsNullable    string  `gorm:"column:is_nullable"`
+		DataType      string  `gorm:"column:data_type"`
+		ColumnType    string  `gorm:"column:column_type"`
+		ColumnKey     string  `gorm:"column:column_key"`
+		Extra         string  `gorm:"column:extra"`
+		ColumnComment string  `gorm:"column:column_comment"`
 	}
 
 	var dbFields []*mysqlField
@@ -128,12 +139,34 @@ func (t *mysql) tableFields(db *gorm.DB, name string) (fields []*Field, err erro
 	fdb := db.Table("information_schema.columns").
 		Select("column_name, column_default, is_nullable, data_type, column_type, column_key, extra, column_comment").
 		Where("table_schema=database() and table_name=?", name)
-	err = fdb.Find(&dbFields).Error
+
+	rows, err := fdb.Rows()
 	if err != nil {
 		return
 	}
 
+	defer rows.Close()
+
 	fields = make([]*Field, 0, len(dbFields))
+
+	for rows.Next() {
+		var field mysqlField
+		err = rows.Scan(
+			&field.ColumnName,
+			&field.ColumnDefault,
+			&field.IsNullable,
+			&field.DataType,
+			&field.ColumnType,
+			&field.ColumnKey,
+			&field.Extra,
+			&field.ColumnComment,
+		)
+		if err != nil {
+			return
+		}
+		dbFields = append(dbFields, &field)
+	}
+
 	for _, it := range dbFields {
 		field := &Field{
 			Field:   it.ColumnName,
@@ -178,6 +211,7 @@ var typeMysqlDic = map[string]string{
 	"smallint unsigned":   "uint16",
 	"int":                 "int",
 	"int unsigned":        "uint",
+	"mediumint unsigned":  "uint",
 	"bigint":              "int64",
 	"bigint unsigned":     "uint64",
 	"varchar":             "string",
@@ -193,6 +227,7 @@ var typeMysqlDic = map[string]string{
 	"text":                "string",
 	"timestamp":           "time.Time",
 	"double":              "float64",
+	"double unsigned":     "float64",
 	"mediumtext":          "string",
 	"longtext":            "string",
 	"float":               "float32",

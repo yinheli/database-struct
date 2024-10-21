@@ -17,7 +17,7 @@ type Field struct {
 	Type     string
 	Null     string
 	Key      string
-	Default  string
+	Default  *string
 	Comment  string
 	Nullable bool
 	GoType   string

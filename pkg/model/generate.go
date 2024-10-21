@@ -214,8 +214,8 @@ func goFields(options *Options, fields []*Field) []jen.Code {
 		tag := make(map[string]string)
 		if options.GenGormTag {
 			t := fmt.Sprintf(`column:%s;type:%s`, f.Field, f.Type)
-			if f.Default != "" {
-				t += fmt.Sprint(";default:", f.Default)
+			if f.Default != nil {
+				t += fmt.Sprint(";default:", *f.Default)
 			}
 			if !f.Nullable {
 				t += ";not null"
